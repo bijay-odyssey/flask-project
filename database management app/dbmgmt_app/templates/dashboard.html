@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Database Management Dashboard</h2>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    
+    <h3>Create New Table</h3>
+    <form method="POST" action="{{ url_for('create_table') }}">
+        <input type="text" name="table_name" placeholder="Table Name" required>
+        <button type="submit">Create Table</button>
+    </form>
+    
+    <h3>Existing Tables</h3>
+    <ul>
+        {% for table in tables %}
+            <li><a href="{{ url_for('edit_table', table_name=table) }}">{{ table }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
