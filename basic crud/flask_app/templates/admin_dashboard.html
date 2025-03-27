@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Admin Dashboard</h2>
+    <p>Welcome, {{ current_user.username }}!</p>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    
+    <h3>All Users</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Is Admin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_user', id=user.id) }}">
+                        <input type="text" name="username" value="{{ user.username }}">
+                </td>
+                <td>
+                    <input type="email" name="email" value="{{ user.email }}">
+                </td>
+                <td>{{ user.is_admin }}</td>
+                <td>
+                    <input type="password" name="password" placeholder="New password">
+                    <button type="submit">Update</button>
+                    {% if not user.is_admin %}
+                    <a href="{{ url_for('delete_user', id=user.id) }}" 
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                    {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
