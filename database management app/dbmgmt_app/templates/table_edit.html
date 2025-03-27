@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Edit Table: {{ table_name }}</h2>
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    
+    <h3>Current Columns</h3>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Foreign Key</th>
+            <th>Action</th>
+        </tr>
+        {% for column in table.columns %}
+        <tr>
+            <td>{{ column.name }}</td>
+            <td>{{ column.type }}</td>
+            <td>{{ column.foreign_keys|join(', ') }}</td>
+            <td>
+                {% if column.name != 'id' %}
+                <form method="POST" style="display:inline">
+                    <input type="hidden" name="action" value="delete_column">
+                    <input type="hidden" name="column_name" value="{{ column.name }}">
+                    <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <h3>Add New Column</h3>
+    <form method="POST">
+        <input type="hidden" name="action" value="add_column">
+        <input type="text" name="column_name" placeholder="Column Name" required><br>
+        <select name="column_type">
+            <option value="integer">Integer</option>
+            <option value="string">String</option>
+        </select><br>
+        <label>
+            <input type="checkbox" name="is_foreign_key"> Foreign Key
+        </label><br>
+        <select name="fk_table">
+            {% for t in all_tables %}
+                {% if t != table_name %}
+                    <option value="{{ t }}">{{ t }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <input type="text" name="fk_column" placeholder="Reference Column" value="id"><br>
+        <button type="submit">Add Column</button>
+    </form>
+{% endblock %}
