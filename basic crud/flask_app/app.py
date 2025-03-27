@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from email_validator import validate_email, EmailNotValidError
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -54,6 +55,14 @@ def register():
             flash('Username already exists')
             return redirect(url_for('register'))
         
+        try:
+            # Validate email
+            valid = validate_email(email)
+            email = valid.email
+        except EmailNotValidError as e:
+            flash('Invalid email address')
+            return redirect(url_for('register'))
+            
         if User.query.filter_by(email=email).first():
             flash('Email already exists')
             return redirect(url_for('register'))
@@ -111,8 +120,27 @@ def update_user(id):
     if not current_user.is_admin:
         return redirect(url_for('user_dashboard'))
     user = User.query.get_or_404(id)
-    user.username = request.form['username']
-    user.email = request.form['email']
+    new_username = request.form['username']
+    new_email = request.form['email']
+    
+    if new_username != user.username and User.query.filter_by(username=new_username).first():
+        flash('Username already exists')
+        return redirect(url_for('admin_dashboard'))
+        
+    try:
+        # Validate email
+        valid = validate_email(new_email)
+        new_email = valid.email
+    except EmailNotValidError as e:
+        flash('Invalid email address')
+        return redirect(url_for('admin_dashboard'))
+        
+    if new_email != user.email and User.query.filter_by(email=new_email).first():
+        flash('Email already exists')
+        return redirect(url_for('admin_dashboard'))
+        
+    user.username = new_username
+    user.email = new_email
     if request.form['password']:
         user.password = generate_password_hash(request.form['password'])
     db.session.commit()
