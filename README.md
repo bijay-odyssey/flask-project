@@ -8,3 +8,6 @@ It is just **practice** repo.
 ---
 
 Repository Structure
+📁 basic crud/
+📁 basicapi/
+📁database management/
